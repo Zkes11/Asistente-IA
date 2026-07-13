@@ -60,7 +60,7 @@ FEATURE_INFO: dict[str, dict[str, Any]] = {
         "question_seed": "Cuando te imaginas estudiando o trabajando, que parte de la tecnologia te atrae de verdad",
         "keywords": AREA_INFO["interest_technology"]["keywords"],
         "positive_patterns": [r"\bme gusta(?: mucho)? la tecnologia\b", r"\bprogram", r"\bsoftware\b"],
-        "negative_patterns": [r"\bno me gusta(?: mucho)? la tecnologia\b", r"\bcasi no me interesa la tecnologia\b"],
+        "negative_patterns": [r"\bno me gusta(?: mucho)? la tecnologia\b", r"\bcasi no me interesa la tecnologia\b", r"\bcasi no me gusta la tecnlogia\b", r"\bcasi no me gusta la tecnologia\b"],
     },
     "interest_social": {
         "label": "interes social",
@@ -309,6 +309,8 @@ def _score_feature_from_text(feature_key: str, text: str, *, broad: bool) -> flo
         return 5.0
     if feature_key == "communication" and ("casi no" in normalized or "no tanto" in normalized):
         return 2.0
+    if feature_key == "numerical_skill" and ("soy muy malo" in normalized or "muy malo" in normalized or "muy mala" in normalized):
+        return 1.0
 
     return 3.0
 

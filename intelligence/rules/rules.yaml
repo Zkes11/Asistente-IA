@@ -159,13 +159,17 @@ rules:
         - feature: practical_learning
           operator: gte
           value: 4
+      any:
         - feature: teamwork_preference
           operator: gte
-          value: 4
+          value: 3
+        - feature: autonomy_preference
+          operator: gte
+          value: 3
     actions:
       - type: increase_program_score
         target: fisioterapia
-        weight: 0.24
+        weight: 0.30
       - type: increase_program_score
         target: educacion
         weight: 0.12
