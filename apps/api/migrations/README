@@ -1,0 +1,1 @@
+Migraciones Alembic pendientes de consolidacion. La aplicacion crea tablas via metadata.create_all en esta iteracion inicial.

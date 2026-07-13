@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orientaia-api"
+version = "0.1.0"
+description = "API de OrientaIA"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi==0.116.1",
+  "uvicorn[standard]==0.35.0",
+  "sqlalchemy==2.0.43",
+  "aiosqlite==0.21.0",
+  "asyncpg==0.30.0",
+  "psycopg[binary]==3.2.9",
+  "alembic==1.16.4",
+  "pydantic==2.11.7",
+  "pydantic-settings==2.10.1",
+  "python-jose[cryptography]==3.5.0",
+  "argon2-cffi==25.1.0",
+  "email-validator==2.2.0",
+  "redis==6.2.0",
+  "neo4j==5.28.2",
+  "pyyaml==6.0.2",
+  "numpy==2.3.2",
+  "scikit-learn==1.7.1",
+  "joblib==1.5.1",
+  "rdflib==7.1.4",
+  "httpx==0.28.1",
+  "orjson==3.11.1",
+  "python-multipart==0.0.20",
+  "reportlab==4.4.3"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==8.4.1",
+  "pytest-asyncio==1.1.0",
+  "pytest-cov==6.2.1",
+  "mypy==1.17.0",
+  "ruff==0.12.5",
+  "bandit==1.8.6"
+]
+
+[tool.setuptools]
+packages = ["app"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "S"]
+ignore = ["B008", "E501", "S101", "S104", "S105"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = []
+exclude = ["migrations"]
+ignore_missing_imports = true
+disable_error_code = ["import-untyped"]

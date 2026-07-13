@@ -1,0 +1,512 @@
+rules:
+  - id: RULE_TECH_LOGIC_001
+    version: 1
+    enabled: true
+    priority: 10
+    conditions:
+      all:
+        - feature: interest_technology
+          operator: gte
+          value: 4
+        - feature: logical_reasoning
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: ingenieria-de-sistemas
+        weight: 0.22
+      - type: increase_program_score
+        target: ingenieria-de-software
+        weight: 0.18
+    explanation:
+      title: Afinidad tecnologica y logica
+      template: Mostraste interes alto por la tecnologia y fortaleza en razonamiento logico.
+  - id: RULE_DATA_NUMERIC_001
+    version: 1
+    enabled: true
+    priority: 12
+    conditions:
+      all:
+        - feature: interest_data
+          operator: gte
+          value: 4
+        - feature: numerical_skill
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: ciencia-de-datos
+        weight: 0.24
+      - type: increase_program_score
+        target: analitica-de-negocios
+        weight: 0.18
+    explanation:
+      title: Analitica y habilidades numericas
+      template: Disfrutas analizar datos y reportaste seguridad en habilidades numericas.
+  - id: RULE_SECURITY_TECH_001
+    version: 1
+    enabled: true
+    priority: 14
+    conditions:
+      all:
+        - feature: interest_technology
+          operator: gte
+          value: 4
+        - feature: organization
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: ciberseguridad
+        weight: 0.2
+    explanation:
+      title: Perfil estructurado para tecnologia
+      template: La combinacion de interes tecnologico y organizacion favorece areas de seguridad.
+  - id: RULE_DESIGN_CREATIVE_001
+    version: 1
+    enabled: true
+    priority: 16
+    conditions:
+      all:
+        - feature: interest_design
+          operator: gte
+          value: 4
+        - feature: creativity
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: diseno-grafico
+        weight: 0.2
+      - type: increase_program_score
+        target: diseno-ux-ui
+        weight: 0.22
+    explanation:
+      title: Afinidad creativa y visual
+      template: Reportaste gusto por el diseno y alta disposicion creativa.
+  - id: RULE_DESIGN_VISUAL_002
+    version: 1
+    enabled: true
+    priority: 17
+    conditions:
+      all:
+        - feature: visual_thinking
+          operator: gte
+          value: 4
+        - feature: interest_design
+          operator: gte
+          value: 3
+    actions:
+      - type: increase_program_score
+        target: diseno-ux-ui
+        weight: 0.16
+    explanation:
+      title: Pensamiento visual
+      template: El pensamiento visual elevado apoya trayectorias centradas en interfaces y comunicacion visual.
+  - id: RULE_SOCIAL_EMPATHY_001
+    version: 1
+    enabled: true
+    priority: 18
+    conditions:
+      all:
+        - feature: interest_social
+          operator: gte
+          value: 4
+        - feature: empathy
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: psicologia
+        weight: 0.22
+      - type: increase_program_score
+        target: trabajo-social
+        weight: 0.19
+    explanation:
+      title: Interes social y empatia
+      template: Tu perfil refleja disposicion hacia la comprension y acompanamiento de otras personas.
+  - id: RULE_HEALTH_CARE_001
+    version: 1
+    enabled: true
+    priority: 20
+    conditions:
+      all:
+        - feature: interest_health
+          operator: gte
+          value: 4
+        - feature: empathy
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: enfermeria
+        weight: 0.21
+      - type: increase_program_score
+        target: fisioterapia
+        weight: 0.18
+    explanation:
+      title: Orientacion al cuidado
+      template: Mostraste interes por entornos de salud y facilidad para el trato empatico.
+  - id: RULE_SPORTS_REHAB_001
+    version: 1
+    enabled: true
+    priority: 21
+    conditions:
+      all:
+        - feature: interest_health
+          operator: gte
+          value: 4
+        - feature: practical_learning
+          operator: gte
+          value: 4
+        - feature: teamwork_preference
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: fisioterapia
+        weight: 0.24
+      - type: increase_program_score
+        target: educacion
+        weight: 0.12
+    explanation:
+      title: Movimiento, practica y trabajo en equipo
+      template: El interes por actividad fisica, el aprendizaje practico y la preferencia por trabajar con otros acercan a rutas como fisioterapia.
+  - id: RULE_COMMUNICATION_001
+    version: 1
+    enabled: true
+    priority: 22
+    conditions:
+      all:
+        - feature: communication
+          operator: gte
+          value: 4
+        - feature: interest_social
+          operator: gte
+          value: 3
+    actions:
+      - type: increase_program_score
+        target: comunicacion-social
+        weight: 0.21
+      - type: increase_program_score
+        target: periodismo-digital
+        weight: 0.17
+    explanation:
+      title: Comunicacion e impacto publico
+      template: La comunicacion aparece como una fortaleza relevante en tu perfil.
+  - id: RULE_BUSINESS_LEADERSHIP_001
+    version: 1
+    enabled: true
+    priority: 24
+    conditions:
+      all:
+        - feature: interest_business
+          operator: gte
+          value: 4
+        - feature: organization
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: administracion-de-empresas
+        weight: 0.22
+      - type: increase_program_score
+        target: finanzas
+        weight: 0.16
+    explanation:
+      title: Gestion y estructura
+      template: El interes por negocios y la organizacion favorecen opciones de gestion.
+  - id: RULE_MARKETING_COMMUNICATION_001
+    version: 1
+    enabled: true
+    priority: 25
+    conditions:
+      all:
+        - feature: interest_business
+          operator: gte
+          value: 3
+        - feature: communication
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: marketing-digital
+        weight: 0.2
+    explanation:
+      title: Negocios y comunicacion
+      template: El cruce entre comunicacion y objetivos comerciales abre afinidad con marketing digital.
+  - id: RULE_OPERATIONS_SYSTEMS_001
+    version: 1
+    enabled: true
+    priority: 28
+    conditions:
+      all:
+        - feature: numerical_skill
+          operator: gte
+          value: 4
+        - feature: organization
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: ingenieria-industrial
+        weight: 0.19
+      - type: increase_program_score
+        target: logistica
+        weight: 0.17
+    explanation:
+      title: Gestion de procesos
+      template: Reportaste orden y manejo numerico, utiles para procesos y operaciones.
+  - id: RULE_ENVIRONMENT_SCIENCE_001
+    version: 1
+    enabled: true
+    priority: 30
+    conditions:
+      all:
+        - feature: interest_health
+          operator: gte
+          value: 4
+        - feature: theoretical_learning
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: biologia
+        weight: 0.22
+      - type: increase_program_score
+        target: gestion-ambiental
+        weight: 0.14
+    explanation:
+      title: Curiosidad cientifica aplicada
+      template: El gusto por aprender teoria y el interes por sistemas vivos favorecen ciencias naturales.
+  - id: RULE_CHEMISTRY_LAB_001
+    version: 1
+    enabled: true
+    priority: 31
+    conditions:
+      all:
+        - feature: interest_health
+          operator: gte
+          value: 4
+        - feature: practical_learning
+          operator: gte
+          value: 4
+        - feature: autonomy_preference
+          operator: gte
+          value: 3
+        - feature: theoretical_learning
+          operator: gte
+          value: 3
+      not:
+        - feature: empathy
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: quimica-aplicada
+        weight: 0.24
+      - type: increase_program_score
+        target: biologia
+        weight: 0.16
+    explanation:
+      title: Afinidad por laboratorio y exploracion cientifica
+      template: Las respuestas sugieren interes por ciencia aplicada, experimentacion y trabajo mas autonomo que asistencial.
+  - id: RULE_HEALTH_ANALYTIC_001
+    version: 1
+    enabled: true
+    priority: 31
+    conditions:
+      all:
+        - feature: interest_health
+          operator: gte
+          value: 4
+        - feature: numerical_skill
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: quimica-aplicada
+        weight: 0.18
+      - type: increase_program_score
+        target: biologia
+        weight: 0.15
+    explanation:
+      title: Ciencia con base analitica
+      template: La combinacion de interes cientifico y manejo numerico favorece rutas de laboratorio y ciencias naturales.
+  - id: RULE_EDUCATION_COMMUNICATION_001
+    version: 1
+    enabled: true
+    priority: 32
+    conditions:
+      all:
+        - feature: communication
+          operator: gte
+          value: 4
+        - feature: empathy
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: educacion
+        weight: 0.18
+    explanation:
+      title: Explicacion y acompanamiento
+      template: Tu perfil sugiere comodidad para ensenar, escuchar y guiar procesos de aprendizaje.
+  - id: RULE_APPLIED_PRACTICAL_001
+    version: 1
+    enabled: true
+    priority: 34
+    conditions:
+      all:
+        - feature: practical_learning
+          operator: gte
+          value: 4
+        - feature: autonomy_preference
+          operator: gte
+          value: 3
+    actions:
+      - type: increase_program_score
+        target: gastronomia
+        weight: 0.15
+      - type: increase_program_score
+        target: logistica
+        weight: 0.14
+    explanation:
+      title: Aprendizaje practico
+      template: Prefieres aprender haciendo y eso acerca a contextos tecnicos y aplicados.
+  - id: RULE_MEDIA_CREATIVE_001
+    version: 1
+    enabled: true
+    priority: 36
+    conditions:
+      all:
+        - feature: creativity
+          operator: gte
+          value: 4
+        - feature: communication
+          operator: gte
+          value: 3
+    actions:
+      - type: increase_program_score
+        target: produccion-audiovisual
+        weight: 0.17
+    explanation:
+      title: Narrativa y creatividad
+      template: La combinacion de creatividad y expresion favorece medios y produccion audiovisual.
+  - id: RULE_SOFTWARE_AUTONOMY_001
+    version: 1
+    enabled: true
+    priority: 38
+    conditions:
+      all:
+        - feature: interest_technology
+          operator: gte
+          value: 4
+        - feature: autonomy_preference
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: ingenieria-de-software
+        weight: 0.19
+    explanation:
+      title: Tecnologia con autonomia
+      template: Te atrae la tecnologia y valoras trabajar con autonomia.
+  - id: RULE_MECHATRONICS_PRACTICAL_001
+    version: 1
+    enabled: true
+    priority: 40
+    conditions:
+      all:
+        - feature: interest_technology
+          operator: gte
+          value: 3
+        - feature: practical_learning
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: mecatronica
+        weight: 0.16
+    explanation:
+      title: Tecnologia aplicada
+      template: El gusto por la tecnologia y el aprendizaje practico acercan a areas de automatizacion.
+  - id: RULE_FINANCE_NUMERIC_001
+    version: 1
+    enabled: true
+    priority: 42
+    conditions:
+      all:
+        - feature: interest_business
+          operator: gte
+          value: 4
+        - feature: numerical_skill
+          operator: gte
+          value: 4
+    actions:
+      - type: increase_program_score
+        target: finanzas
+        weight: 0.2
+    explanation:
+      title: Analisis financiero
+      template: El interes por negocios y el manejo numerico apoyan rutas financieras.
+  - id: RULE_ABSTAIN_INCOMPLETE
+    version: 1
+    enabled: true
+    priority: 2
+    abstention: true
+    conditions:
+      any:
+        - feature: interest_technology
+          operator: lte
+          value: 1
+        - feature: interest_social
+          operator: lte
+          value: 1
+        - feature: communication
+          operator: lte
+          value: 1
+    actions: []
+    explanation:
+      title: Perfil incompleto
+      template: Faltan respuestas o hay evidencia insuficiente para una conclusion fuerte.
+  - id: RULE_ABSTAIN_MULTI_AFFINITY
+    version: 1
+    enabled: true
+    priority: 3
+    abstention: true
+    conditions:
+      all:
+        - feature: interest_technology
+          operator: gte
+          value: 4
+        - feature: interest_social
+          operator: gte
+          value: 4
+        - feature: interest_design
+          operator: gte
+          value: 4
+    actions: []
+    explanation:
+      title: Afinidades multiples
+      template: Tu perfil muestra varias afinidades fuertes y conviene profundizar antes de priorizar una ruta.
+  - id: RULE_ABSTAIN_LOW_SIGNAL
+    version: 1
+    enabled: true
+    priority: 4
+    abstention: true
+    conditions:
+      all:
+        - feature: logical_reasoning
+          operator: lte
+          value: 2
+        - feature: communication
+          operator: lte
+          value: 2
+        - feature: empathy
+          operator: lte
+          value: 2
+    actions: []
+    explanation:
+      title: Senal insuficiente
+      template: Las respuestas actuales no ofrecen suficiente separacion para orientar con claridad.

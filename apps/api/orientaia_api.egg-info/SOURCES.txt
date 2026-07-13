@@ -1,0 +1,8 @@
+pyproject.toml
+app/__init__.py
+app/main.py
+orientaia_api.egg-info/PKG-INFO
+orientaia_api.egg-info/SOURCES.txt
+orientaia_api.egg-info/dependency_links.txt
+orientaia_api.egg-info/requires.txt
+orientaia_api.egg-info/top_level.txt
