@@ -204,12 +204,14 @@ FEATURE_INFO: dict[str, dict[str, Any]] = {
 }
 
 QUESTION_TEMPLATES = [
-    "Quiero entender mejor {label}. {seed}? Si puedes, dame un ejemplo concreto.",
-    "Me falta un poco de precision en {label}. {seed}? Responde como si me contaras una situacion real.",
-    "Voy a profundizar un poco en {label}. {seed}? Cuentamelo con tus palabras.",
+    "Me gustaría conocerte un poco más en esto. {seed}?",
+    "Cuéntame un poco más sobre eso. {seed}?",
+    "Esto me ayuda a entenderte mejor. {seed}?",
+    "Interesante. {seed}?",
+    "Para afinar mejor el análisis, {seed}?",
 ]
 OPENING_PROMPT = (
-    "Cuéntame con libertad qué temas te atraen, qué actividades disfrutas, en qué materias te va mejor y qué tipo de trabajo no te imaginas haciendo."
+    "Hola, me alegra conocerte. Cuéntame con libertad qué temas te atraen, qué actividades disfrutas y qué tipo de trabajo no te imaginas haciendo."
 )
 SHORT_POSITIVE_RESPONSES = {"si", "me sale natural", "si, me sale natural", "claro", "bastante", "mucho", "probar"}
 SPORT_TOKENS = ["deporte", "deportes", "entrenamiento", "actividad fisica", "ejercicio"]
@@ -544,7 +546,7 @@ def generate_interview_turn(
     if not next_feature:
         return {
             "question": (
-                "Ya tengo suficiente contexto para cerrar el analisis. Si quieres, procesa el perfil ahora y te devuelvo un plan por este chat."
+                "Ya tengo una buena idea de quién eres y qué te gusta. Si quieres, procesa el análisis ahora y te preparo un plan personalizado."
             ),
             "feature_key": None,
             "should_finalize": True,
@@ -592,7 +594,7 @@ def build_interview_reflection(
 
     ranked = [(AREA_INFO[feature_key]["label"], score) for feature_key, score in _rank_interest_areas(answers) if score > 1][:2]
     if not ranked:
-        return "Todavia no tengo una afinidad dominante clara. Voy a hacer una pregunta mas dirigida para no inventar una señal que no aparece en tu respuesta."
+        return "Aún no tengo una señal clara de qué te apasiona. Déjame hacerte una pregunta más específica para conocerte mejor."
     formatted = " y ".join(f"{label} ({round(score, 1)}/5)" for label, score in ranked)
     return (
         f"Con lo que contaste, por ahora veo mas señal en {formatted}. "
@@ -746,10 +748,10 @@ def deterministic_reply(user_input: str, context: dict[str, Any]) -> dict[str, A
         }
     if "plan" in normalized and action_plan:
         return {
-            "content": f"Tu plan activo es {action_plan['title']}. Tiene {len(action_plan['steps'])} pasos principales.",
+            "content": f"Tu plan activo es {action_plan['title']}. Tiene {len(action_plan['steps'])} pasos para que explores.",
             "citations": [],
         }
     return {
-        "content": "No pude interpretar completamente tu pregunta. Puedo ayudarte a revisar tus recomendaciones, explicar tus resultados, comparar opciones o mostrar tu plan.",
+        "content": "No estoy seguro de haberte entendido del todo. ¿Podrías contarme un poco más? También puedo explicarte tus recomendaciones, comparar opciones o mostrarte tu plan.",
         "citations": [],
     }

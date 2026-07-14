@@ -86,6 +86,12 @@ async def delete_session(
     ).scalar_one_or_none()
     if not session:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sesion no encontrada")
+    # Delete messages first to avoid FK constraint
+    messages = (
+        await db.execute(select(ChatMessage).where(ChatMessage.session_id == session.id))
+    ).scalars().all()
+    for message in messages:
+        await db.delete(message)
     await db.delete(session)
     await db.commit()
     return MessageResponse(message="Sesion eliminada")

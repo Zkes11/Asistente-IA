@@ -1,16 +1,23 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Bot, ChartColumn, ClipboardList, Route, Star } from "lucide-react";
+import { ArrowRight, Bot, Brain, ChartColumn, ClipboardList, GraduationCap, Rocket, Route, Star, Target } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { AppShell } from "@/components/shell";
-import { Card, Button } from "@/components/ui";
+import { Button, Card, GlassCard, OriAvatar } from "@/components/ui";
 import { api } from "@/lib/api";
 import type { ActionPlan, Profile, RecommendationRun } from "@/lib/types";
 
 const RESET_PENDING_STORAGE_KEY = "orientaia-analysis-reset-pending";
+
+const welcomeCards = [
+  { title: "Descubrir intereses", icon: Target, emoji: "🎯" },
+  { title: "Conocer fortalezas", icon: Brain, emoji: "🧠" },
+  { title: "Explorar carreras", icon: GraduationCap, emoji: "📚" },
+  { title: "Construir un plan", icon: Rocket, emoji: "🚀" },
+];
 
 export default function DashboardPage() {
   const [resetPending, setResetPending] = useState(false);
@@ -30,36 +37,64 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
-      {!latest ? (
-        <Card className="p-6">
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
-            <div>
-              <div className="mb-2 text-sm text-cyan-300">Analisis pendiente</div>
-              <h2 className="text-3xl font-semibold">
-                {profile?.preferred_name ? `${profile.preferred_name}, primero conversemos.` : "Primero conversemos."}
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm text-muted">
-                Este panel solo muestra resultados cuando OrientaIA termina una entrevista guiada en el chat.
-                Ahi capturamos intereses, habilidades, preferencias y luego generamos recomendaciones y plan.
+      <section className="mb-5 space-y-5">
+        <GlassCard className="overflow-hidden p-0">
+          <div className="relative grid gap-8 p-6 md:p-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-center">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_75%_20%,rgba(34,211,238,0.18),transparent_28%),linear-gradient(135deg,rgba(14,165,233,0.13),rgba(139,92,246,0.08))]" />
+            <div className="relative">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-xs font-medium text-cyan-100">
+                <SparkleDot /> Bienvenida a OrientaIA
+              </div>
+              <h2 className="text-4xl font-bold tracking-tight text-balance md:text-5xl">Hola, soy Ori 👋</h2>
+              <p className="mt-4 text-xl font-medium text-cyan-100">Tu asistente de orientación vocacional.</p>
+              <p className="mt-3 max-w-3xl text-base leading-7 text-slate-300">
+                Voy a acompañarte mientras descubrimos qué áreas, carreras y oportunidades pueden encajar mejor contigo.
               </p>
-              <div className="mt-5">
+              <div className="mt-7">
                 <Link href="/chat">
-                  <Button className="inline-flex items-center gap-2">
-                    Iniciar analisis en chat <ArrowRight className="h-4 w-4" />
+                  <Button className="inline-flex items-center gap-2 px-6 py-3 text-base">
+                    Comenzar conversación <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
               </div>
             </div>
-            <Card className="p-5">
-              <div className="mb-3 flex items-center justify-between text-sm text-muted">
-                Estado del perfil <ClipboardList className="h-4 w-4" />
+            <div className="relative mx-auto flex flex-col items-center gap-3">
+              <OriAvatar variant="greeting" size="xl" className="animate-float" />
+              <div className="rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm text-cyan-100 shadow-glow">
+                Ori está listo para ayudarte
               </div>
-              <div className="text-3xl font-semibold">Sin analizar</div>
-              <p className="mt-2 text-sm text-muted">
-                Aun no hay puntajes ni plan porque el analisis todavia no se ha completado.
-              </p>
-            </Card>
+            </div>
           </div>
+        </GlassCard>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {welcomeCards.map((item) => {
+            const Icon = item.icon;
+            return (
+              <GlassCard key={item.title} className="group p-5 transition duration-200 hover:-translate-y-1 hover:border-cyan-200/25">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/8 text-2xl">
+                  <span aria-hidden>{item.emoji}</span>
+                </div>
+                <div className="flex items-center gap-2 text-lg font-semibold">
+                  <Icon className="h-4 w-4 text-cyan-300" />
+                  {item.title}
+                </div>
+                <p className="mt-2 text-sm text-muted">Una guía visual para avanzar con claridad, sin agregar funciones nuevas.</p>
+              </GlassCard>
+            );
+          })}
+        </div>
+      </section>
+
+      {!latest ? (
+        <Card className="p-5">
+          <div className="mb-3 flex items-center justify-between text-sm text-muted">
+            Estado del perfil <ClipboardList className="h-4 w-4" />
+          </div>
+          <div className="text-2xl font-semibold">Sin analizar</div>
+          <p className="mt-2 text-sm text-muted">
+            Aún no hay puntajes ni plan porque el análisis todavía no se ha completado.
+          </p>
         </Card>
       ) : (
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -185,4 +220,8 @@ export default function DashboardPage() {
       )}
     </AppShell>
   );
+}
+
+function SparkleDot() {
+  return <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.9)]" />;
 }

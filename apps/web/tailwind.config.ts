@@ -9,13 +9,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#06111f",
-        sidebar: "#071523",
-        surface: "#0d1b2a",
-        elevated: "#12243a",
-        primary: "#18d7df",
-        blue: "#2f80ff",
-        secondary: "#7c5cff",
+        background: "#020817",
+        sidebar: "#07111f",
+        surface: "#0b1220",
+        elevated: "#111827",
+        primary: "#22D3EE",
+        blue: "#0EA5E9",
+        secondary: "#8B5CF6",
         success: "#2ee6a6",
         warning: "#ff9f43",
         danger: "#ff5f6d",
@@ -24,10 +24,25 @@ const config: Config = {
         border: "rgba(255,255,255,0.08)"
       },
       boxShadow: {
-        panel: "0 20px 40px rgba(0,0,0,0.2)"
+        panel: "0 24px 70px rgba(2,8,23,0.42), inset 0 1px 0 rgba(255,255,255,0.06)",
+        glow: "0 0 40px rgba(34,211,238,0.18)"
       },
       borderRadius: {
-        panel: "18px"
+        panel: "24px"
+      },
+      keyframes: {
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-8px)" }
+        },
+        shimmer: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" }
+        }
+      },
+      animation: {
+        float: "float 4s ease-in-out infinite",
+        shimmer: "shimmer 2.4s ease-in-out infinite"
       }
     },
   },

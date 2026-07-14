@@ -16,6 +16,7 @@ from app.schemas.action_plans import (
     CreateActionPlanRequest,
     UpdateActionPlanStepRequest,
 )
+from app.schemas.common import MessageResponse
 from app.services.chat_provider import generate_action_plan_content
 
 router = APIRouter()

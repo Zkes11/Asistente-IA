@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { AppShell } from "@/components/shell";
-import { Button, Card, Textarea } from "@/components/ui";
+import { Button, Card, GlassCard, OriAvatar, type OriVariant, Textarea } from "@/components/ui";
 import { api } from "@/lib/api";
 import type {
   ActionPlan,
@@ -55,6 +55,47 @@ type AnswerValue = number | string;
 type TranscriptMessage = { id: string; role: "assistant" | "user"; content: string; muted?: boolean };
 type PromptState = { kind: "idle" | "broad" | "feature"; featureKey?: string; content: string };
 type QuestionItem = AssessmentSchema["sections"][number]["questions"][number];
+
+function getOriVariant({ isThinking, interviewCompleted }: { isThinking?: boolean; interviewCompleted?: boolean }): OriVariant {
+  if (interviewCompleted) {
+    return "celebrating";
+  }
+  if (isThinking) {
+    return "thinking";
+  }
+  return "analyzing";
+}
+
+function ChatBubble({
+  role,
+  content,
+  label,
+  muted,
+  oriVariant,
+}: {
+  role: "assistant" | "user";
+  content: string;
+  label: string;
+  muted?: boolean;
+  oriVariant: OriVariant;
+}) {
+  const isAssistant = role === "assistant";
+  return (
+    <div className={`flex max-w-4xl gap-3 ${isAssistant ? "mr-auto" : "ml-auto flex-row-reverse"}`}>
+      {isAssistant && <OriAvatar variant={oriVariant} size="sm" className="mt-1" />}
+      <div
+        className={`relative rounded-[24px] border px-5 py-4 text-sm leading-6 shadow-panel ${
+          isAssistant
+            ? "border-cyan-300/16 bg-cyan-300/[0.085] text-slate-100"
+            : "border-white/10 bg-white/[0.075] text-slate-50"
+        }`}
+      >
+        <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">{label}</div>
+        <div className={muted ? "text-slate-300" : "text-text"}>{content}</div>
+      </div>
+    </div>
+  );
+}
 
 function createId(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
@@ -397,16 +438,21 @@ export default function ChatPage() {
     <AppShell>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
         <Card className="relative overflow-hidden p-0">
-          <div className="border-b border-border bg-[linear-gradient(135deg,rgba(24,215,223,0.18),rgba(124,92,255,0.12))] px-6 py-5">
+          <div className="border-b border-white/10 bg-[linear-gradient(135deg,rgba(14,165,233,0.20),rgba(34,211,238,0.12),rgba(139,92,246,0.10))] px-6 py-5">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-black/10 px-3 py-1 text-xs text-cyan-100">
               <Sparkles className="h-3.5 w-3.5" />
-              Asistente local de orientacion
+              Ori · asistente local de orientación
             </div>
-            <h2 className="text-2xl font-semibold">Conversemos antes de decidir</h2>
-            <p className="mt-2 max-w-3xl text-sm text-[#d3deed]">
-              La primera pregunta es abierta. Después, OrientaIA cambia la dirección de la entrevista según lo que
-              realmente aparece con más fuerza en tu perfil.
-            </p>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-3xl font-semibold">Conversemos antes de decidir</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-[#d3deed]">
+                  La primera pregunta es abierta. Después, OrientaIA cambia la dirección de la entrevista según lo que
+                  realmente aparece con más fuerza en tu perfil.
+                </p>
+              </div>
+              <OriAvatar variant={getOriVariant({ isThinking, interviewCompleted })} size="lg" className="animate-float" />
+            </div>
             <div className="mt-4 flex flex-wrap gap-3">
               <Button onClick={() => startNewConversation()} disabled={createSessionMutation.isPending}>
                 <MessageSquarePlus className="mr-2 h-4 w-4" />
@@ -423,59 +469,51 @@ export default function ChatPage() {
             </div>
           </div>
 
-          <div className="flex min-h-[68vh] flex-col p-5">
-            <div className="flex-1 space-y-4 overflow-auto pr-1">
+          <div className="flex min-h-[68vh] flex-col bg-slate-950/20 p-5">
+            <div className="flex-1 space-y-5 overflow-auto pr-1">
               {transcript.map((message) => (
-                <div
-                  key={message.id}
-                  className={`max-w-3xl rounded-2xl border p-4 text-sm ${
-                    message.role === "assistant"
-                      ? "border-cyan-400/10 bg-cyan-400/10"
-                      : "ml-auto border-white/8 bg-white/5"
-                  }`}
-                >
-                  <div className="mb-1 text-xs uppercase tracking-wide text-muted">
-                    {message.role === "assistant" ? "OrientaIA" : "Tu respuesta"}
-                  </div>
-                  <div className={message.muted ? "text-[#d2dcf0]" : "text-text"}>{message.content}</div>
-                </div>
+                    <ChatBubble
+                    key={message.id}
+                    role={message.role === "assistant" ? "assistant" : "user"}
+                  content={message.content}
+                  muted={message.muted}
+                  label={message.role === "assistant" ? "Ori · OrientaIA" : "Tu respuesta"}
+                  oriVariant={interviewCompleted ? "celebrating" : "analyzing"}
+                />
               ))}
 
               {interviewCompleted &&
                 messagesQuery.data
                   ?.filter((message) => !persistedTranscriptSet.has(`${message.role}:${message.content}`))
                   .map((message) => (
-                  <div
+                  <ChatBubble
                     key={message.id}
-                    className={`max-w-3xl rounded-2xl border p-4 text-sm ${
-                      message.role === "assistant"
-                        ? "border-cyan-400/10 bg-cyan-400/10"
-                        : "ml-auto border-white/8 bg-white/5"
-                    }`}
-                  >
-                    <div className="mb-1 text-xs uppercase tracking-wide text-muted">
-                      {message.role === "assistant" ? "OrientaIA" : "Tu pregunta"}
-                    </div>
-                    <div>{message.content}</div>
-                  </div>
+                    role={message.role === "assistant" ? "assistant" : "user"}
+                    content={message.content}
+                    label={message.role === "assistant" ? "Ori · OrientaIA" : "Tu pregunta"}
+                    oriVariant="celebrating"
+                  />
                 ))}
 
               {isThinking && (
-                <div className="max-w-3xl rounded-2xl border border-cyan-400/10 bg-cyan-400/10 p-4 text-sm">
-                  <div className="mb-1 text-xs uppercase tracking-wide text-muted">OrientaIA</div>
-                  <div className="flex items-center gap-3 text-[#d2dcf0]">
-                    <span>Analizando tu respuesta...</span>
+                <div className="flex max-w-4xl gap-3">
+                  <OriAvatar variant="thinking" size="sm" className="mt-1 animate-float" />
+                  <div className="rounded-[24px] border border-cyan-300/16 bg-cyan-300/[0.085] px-5 py-4 text-sm shadow-panel">
+                    <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">Ori · OrientaIA</div>
+                    <div className="flex items-center gap-3 text-[#d2dcf0]">
+                    <span>Ori está pensando...</span>
                     <span className="flex items-center gap-1">
                       <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300" />
                       <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:120ms]" />
                       <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:240ms]" />
                     </span>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="mt-5 space-y-4 border-t border-border pt-4">
+            <div className="mt-5 space-y-4 border-t border-white/10 pt-4">
               {!interviewStarted && !interviewCompleted && (
                 <div className="flex flex-wrap items-center gap-3">
                   <Button onClick={() => startInterview()} disabled={createAttemptMutation.isPending}>
@@ -490,11 +528,11 @@ export default function ChatPage() {
 
               {interviewStarted && !interviewCompleted && (
                 <>
-                  <div className="rounded-2xl border border-border bg-white/5 px-4 py-3 text-xs text-muted">
+                  <GlassCard className="px-4 py-3 text-xs text-muted">
                     Señales registradas: {answeredQuestions.length}/{questions.length}. Profundización activa:{" "}
                     {promptState.featureKey ? FEATURE_LABELS[promptState.featureKey] ?? promptState.featureKey : "exploracion abierta"}.{" "}
                     Seguimiento hechos: {followUpAnswerCount}/{MAX_FOLLOW_UP_QUESTIONS}.
-                  </div>
+                  </GlassCard>
                   <Textarea
                     value={draft}
                     onChange={(event) => setDraft(event.target.value)}

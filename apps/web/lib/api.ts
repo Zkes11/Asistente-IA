@@ -116,6 +116,7 @@ export const api = {
     }),
   listChatSessions: (): Promise<ChatSession[]> => request("/chat/sessions"),
   deleteChatSession: (sessionId: string) => request(`/chat/sessions/${sessionId}`, { method: "DELETE" }),
+  deleteActionPlan: (planId: string) => request(`/action-plans/${planId}`, { method: "DELETE" }),
   listMessages: (sessionId: string): Promise<ChatMessage[]> => request(`/chat/sessions/${sessionId}/messages`),
   generateInterviewTurn: (
     sessionId: string,

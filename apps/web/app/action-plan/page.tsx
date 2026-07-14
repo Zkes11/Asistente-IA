@@ -1,11 +1,12 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { AppShell } from "@/components/shell";
-import { Button, Card } from "@/components/ui";
+import { Button, Card, GlassCard, OriAvatar } from "@/components/ui";
 import { api } from "@/lib/api";
 import type { ActionPlan, ChatSession, RecommendationRun } from "@/lib/types";
 
@@ -48,6 +49,14 @@ export default function ActionPlanPage() {
       await plansQuery.refetch();
     },
   });
+  const deleteMutation = useMutation({
+    mutationFn: (planId: string) => api.deleteActionPlan(planId),
+    onSuccess: async () => {
+      window.localStorage.removeItem(ACTIVE_PLAN_STORAGE_KEY);
+      setActivePlanId(null);
+      await plansQuery.refetch();
+    },
+  });
 
   useEffect(() => {
     setActivePlanId(window.localStorage.getItem(ACTIVE_PLAN_STORAGE_KEY));
@@ -74,19 +83,24 @@ export default function ActionPlanPage() {
   return (
     <AppShell>
       {!latestRun && !plans.length ? (
-        <Card className="p-6">
-          <div className="mb-2 text-sm text-cyan-300">Plan bloqueado</div>
-          <h2 className="text-3xl font-semibold">Todavia no hay analisis suficiente.</h2>
-          <p className="mt-3 max-w-2xl text-sm text-muted">
-            El plan de accion se genera despues de completar la entrevista guiada en el chat. Primero debemos entender
-            intereses, habilidades y preferencias.
-          </p>
+        <GlassCard className="p-6">
+          <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_240px] md:items-center">
+            <div>
+              <div className="mb-2 text-sm text-cyan-300">Plan bloqueado</div>
+              <h2 className="text-3xl font-semibold">Todavía no hay análisis suficiente.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
+                El plan de accion se genera despues de completar la entrevista guiada en el chat. Primero debemos entender
+                intereses, habilidades y preferencias.
+              </p>
+            </div>
+            <OriAvatar variant="thinking" size="xl" className="mx-auto animate-float" />
+          </div>
           <div className="mt-5">
             <Link href="/chat">
               <Button>Ir al chat de analisis</Button>
             </Link>
           </div>
-        </Card>
+        </GlassCard>
       ) : (
         <div className="grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
           <Card className="p-4">
@@ -129,7 +143,17 @@ export default function ActionPlanPage() {
           </Card>
 
           <Card className="p-6">
-            <div className="mb-4 flex items-center justify-between">
+            <GlassCard className="mb-5 overflow-hidden p-0">
+              <div className="grid gap-5 p-5 md:grid-cols-[minmax(0,1fr)_200px] md:items-center">
+                <div>
+                  <div className="text-sm font-medium text-cyan-200">Excelente trabajo 🎉</div>
+                  <h3 className="mt-2 text-2xl font-semibold">Ya tengo suficiente información para ayudarte a explorar caminos que encajan contigo.</h3>
+                </div>
+                <OriAvatar variant="celebrating" size="lg" className="mx-auto animate-float" />
+              </div>
+            </GlassCard>
+
+            <div className="mb-4 flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-semibold">{activePlan?.title ?? "Plan de accion"}</h2>
                 <p className="text-sm text-muted">
@@ -146,7 +170,7 @@ export default function ActionPlanPage() {
             {activePlan ? (
               <div className="space-y-4">
                 <Card className="overflow-hidden p-0">
-                  <div className="bg-[linear-gradient(135deg,rgba(24,215,223,0.18),rgba(124,92,255,0.12))] p-5">
+                  <div className="bg-[linear-gradient(135deg,rgba(14,165,233,0.20),rgba(34,211,238,0.12),rgba(139,92,246,0.10))] p-5">
                     <div className="text-xs uppercase tracking-wide text-cyan-100">Plan activo</div>
                     <div className="mt-2 text-xl font-semibold">{activePlan.title}</div>
                     <div className="mt-2 max-w-3xl text-sm text-[#d5e0ee]">{activePlan.summary}</div>
@@ -158,7 +182,7 @@ export default function ActionPlanPage() {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   {activePlan.steps.map((step) => (
-                    <Card key={step.id} className="p-5">
+                    <Card key={step.id} className="p-5 transition duration-200 hover:-translate-y-0.5 hover:border-cyan-200/20">
                       <div className="flex items-center justify-between gap-3">
                         <div className="text-lg font-medium">{step.title}</div>
                         <div className="text-xs uppercase text-cyan-300">{step.priority}</div>
@@ -166,7 +190,7 @@ export default function ActionPlanPage() {
                       <p className="mt-2 text-sm text-muted">{step.description}</p>
                       <div className="mt-3 text-sm">Estado: {step.status}</div>
                       <div className="mt-3 h-2 rounded-full bg-white/10">
-                        <div className="h-2 rounded-full bg-cyan-400" style={{ width: `${step.progress}%` }} />
+                        <div className="h-2 rounded-full bg-gradient-to-r from-blue to-primary" style={{ width: `${step.progress}%` }} />
                       </div>
                     </Card>
                   ))}
