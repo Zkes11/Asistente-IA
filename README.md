@@ -13,7 +13,7 @@ El chat existe para entrevistar al usuario, profundizar en sus intereses y expli
 ## Autor
 
 - **Zkes11 - Santiago Rodriguez**
-
+- **XonoderaX12345 - Sebastian Riascos**
 ## Estado actual del proyecto
 
 El proyecto funciona como una demo tecnica local con:
