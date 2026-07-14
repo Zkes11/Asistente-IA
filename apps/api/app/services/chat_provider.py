@@ -34,11 +34,6 @@ AREA_INFO = {
             "laboratorio",
             "cuerpo",
             "ciencia",
-            "deporte",
-            "deportes",
-            "entrenamiento",
-            "ejercicio",
-            "actividad fisica",
         ],
     },
     "interest_business": {
@@ -83,8 +78,16 @@ FEATURE_INFO: dict[str, dict[str, Any]] = {
         "hint": "laboratorio, bienestar, cuidado, ciencia aplicada o procesos biologicos",
         "question_seed": "Cuando piensas en biologia, quimica o salud, que es lo que mas te atrae de ese mundo",
         "keywords": AREA_INFO["interest_health"]["keywords"],
-        "positive_patterns": [r"\bme gusta la quimica\b", r"\bme gusta la biologia\b", r"\blaboratorio\b", r"\bme interesa la salud\b", r"\bdeporte", r"\bdeportes\b", r"\bactividad fisica\b", r"\bentrenamiento\b"],
-        "negative_patterns": [r"\bno me interesa la salud\b", r"\bno me gusta la biologia\b", r"\bno me gusta la quimica\b"],
+        "positive_patterns": [r"\bme gusta la quimica\b", r"\bme gusta la biologia\b", r"\blaboratorio\b", r"\bme interesa la salud\b"],
+        "negative_patterns": [
+            r"\bno me interesa la salud\b",
+            r"\bno me gusta la biologia\b",
+            r"\bno me gusta la quimica\b",
+            r"\bno me gustan? las ciencias naturales\b",
+            r"\bno me gusta(?:n)? el deporte\b",
+            r"\bno me gusta(?:n)? los deportes\b",
+            r"\bcasi no me gusta(?:n)? los deportes\b",
+        ],
     },
     "interest_business": {
         "label": "interes por negocios",
@@ -209,6 +212,22 @@ OPENING_PROMPT = (
     "Cuéntame con libertad qué temas te atraen, qué actividades disfrutas, en qué materias te va mejor y qué tipo de trabajo no te imaginas haciendo."
 )
 SHORT_POSITIVE_RESPONSES = {"si", "me sale natural", "si, me sale natural", "claro", "bastante", "mucho", "probar"}
+SPORT_TOKENS = ["deporte", "deportes", "entrenamiento", "actividad fisica", "ejercicio"]
+NATURAL_SCIENCE_TOKENS = ["ciencias naturales", "biologia", "quimica", "laboratorio", "salud"]
+
+
+def _feature_contains_explicit_negative(feature_key: str, text: str) -> bool:
+    feature = FEATURE_INFO.get(feature_key)
+    if feature is None:
+        return False
+    return _matches_any(_normalize_text(text), list(feature.get("negative_patterns", [])))
+
+
+def _feature_contains_explicit_positive(feature_key: str, text: str) -> bool:
+    feature = FEATURE_INFO.get(feature_key)
+    if feature is None:
+        return False
+    return _matches_any(_normalize_text(text), list(feature.get("positive_patterns", [])))
 
 
 def _compact(value: str) -> str:
@@ -322,11 +341,6 @@ def _derive_cross_signal_updates(text: str) -> dict[str, float]:
     if any(token in normalized for token in ["quimica", "biologia", "laboratorio"]):
         updates["interest_health"] = max(updates.get("interest_health", 0.0), 5.0)
 
-    if any(token in normalized for token in ["deporte", "deportes", "entrenamiento", "actividad fisica", "ejercicio"]):
-        updates["interest_health"] = max(updates.get("interest_health", 0.0), 4.0)
-        updates["practical_learning"] = max(updates.get("practical_learning", 0.0), 4.0)
-        updates["teamwork_preference"] = max(updates.get("teamwork_preference", 0.0), 4.0)
-
     if "matematic" in normalized or "fisica" in normalized or "calculo" in normalized:
         updates["interest_data"] = max(updates.get("interest_data", 0.0), 4.0)
         updates["numerical_skill"] = max(updates.get("numerical_skill", 0.0), 4.0)
@@ -351,6 +365,23 @@ def _derive_cross_signal_updates(text: str) -> dict[str, float]:
 
     if "cuando lo hago yo" in normalized or "ponerlo en practica" in normalized or normalized == "probar":
         updates["practical_learning"] = max(updates.get("practical_learning", 0.0), 5.0)
+
+    if "no me gustan las ciencias naturales" in normalized or "no me gusta las ciencias naturales" in normalized:
+        updates["interest_health"] = 1.0
+
+    if any(
+        phrase in normalized
+        for phrase in [
+            "no me gusta el deporte",
+            "no me gusta los deportes",
+            "no me gustan los deportes",
+            "ni el deporte",
+            "ni los deportes",
+            "casi no me gustan los deportes",
+        ]
+    ):
+        updates["interest_health"] = min(updates.get("interest_health", 5.0), 1.0)
+        updates["teamwork_preference"] = min(updates.get("teamwork_preference", 3.0), 3.0)
 
     return updates
 
@@ -385,9 +416,15 @@ def extract_answer_updates(
         else:
             updates[feature_key] = max(updates[feature_key], score)
 
+    latest_normalized = _normalize_text(latest_message)
     for feature_key, current_score in list(updates.items()):
         previous_score = float(answers.get(feature_key, 0) or 0)
-        if previous_score > 0:
+        explicit_negative = _feature_contains_explicit_negative(feature_key, latest_normalized)
+        explicit_positive = _feature_contains_explicit_positive(feature_key, latest_normalized)
+        contradiction = (previous_score >= 4 and current_score <= 2) or (previous_score <= 2 and current_score >= 4)
+        if explicit_negative or explicit_positive or contradiction:
+            updates[feature_key] = round(current_score, 2)
+        elif previous_score > 0:
             updates[feature_key] = round((previous_score * 0.35) + (current_score * 0.65), 2)
         else:
             updates[feature_key] = round(current_score, 2)
@@ -410,6 +447,15 @@ def _area_signal_from_messages(user_messages: list[str]) -> list[tuple[str, int]
             "no me gusta la tecnologia" in joined_text or "casi no me interesa la tecnologia" in joined_text
         ):
             score -= 2
+        if area_key == "interest_health" and (
+            "no me gustan las ciencias naturales" in joined_text
+            or "no me gusta las ciencias naturales" in joined_text
+            or "no me gusta el deporte" in joined_text
+            or "no me gustan los deportes" in joined_text
+            or "ni el deporte" in joined_text
+            or "ni los deportes" in joined_text
+        ):
+            score -= 3
         if score > 0:
             ranked_areas.append((area_key, score))
     ranked_areas.sort(key=lambda item: item[1], reverse=True)
@@ -433,7 +479,7 @@ def _follow_ups_for_area(area_key: str, user_messages: list[str]) -> list[str]:
         return list(AREA_INFO[area_key]["follow_ups"])
 
     joined = _normalize_text(" ".join(user_messages))
-    sport_signal = any(token in joined for token in ["deporte", "deportes", "entrenamiento", "actividad fisica", "ejercicio"])
+    sport_signal = any(token in joined for token in SPORT_TOKENS)
     people_care_signal = any(token in joined for token in ["pacientes", "cuidado", "ayudar", "acompanar", "personas"])
     if sport_signal:
         return ["practical_learning", "teamwork_preference", "autonomy_preference", "empathy"]
@@ -442,11 +488,35 @@ def _follow_ups_for_area(area_key: str, user_messages: list[str]) -> list[str]:
     return ["theoretical_learning", "practical_learning", "autonomy_preference", "numerical_skill"]
 
 
+def _theme_follow_ups(user_messages: list[str]) -> list[str]:
+    joined = _normalize_text(" ".join(user_messages))
+    if not joined:
+        return []
+
+    if any(token in joined for token in SPORT_TOKENS):
+        return ["practical_learning", "teamwork_preference", "autonomy_preference", "communication", "empathy"]
+
+    if any(token in joined for token in ["quimica", "biologia", "laboratorio"]):
+        return ["theoretical_learning", "practical_learning", "numerical_skill", "autonomy_preference"]
+
+    if any(token in joined for token in ["matematic", "fisica", "calculo", "datos", "estadistica"]):
+        return ["logical_reasoning", "numerical_skill", "theoretical_learning", "practical_learning"]
+
+    if any(token in joined for token in ["ayudar", "acompanar", "personas", "lider", "motivar"]):
+        return ["empathy", "communication", "teamwork_preference", "autonomy_preference"]
+
+    return []
+
+
 def _pick_next_feature(answers: dict[str, Any], user_messages: list[str], max_follow_up_questions: int) -> str | None:
     answered_keys = set(answers.keys())
     follow_up_answer_count = sum(1 for feature_key in answered_keys if feature_key not in AREA_INFO)
     if follow_up_answer_count >= max_follow_up_questions:
         return None
+
+    for feature_key in _theme_follow_ups(user_messages):
+        if feature_key not in answered_keys:
+            return feature_key
 
     seed_area = _choose_seed_area(answers, user_messages)
     ranked_areas = [seed_area] if seed_area else []

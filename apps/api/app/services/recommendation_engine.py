@@ -73,11 +73,14 @@ def apply_domain_adjustments(features: dict[str, Any], combined: dict[str, float
     adjusted = dict(combined)
 
     interest_health = float(features.get("interest_health", 0) or 0)
+    interest_social = float(features.get("interest_social", 0) or 0)
     practical_learning = float(features.get("practical_learning", 0) or 0)
     interest_technology = float(features.get("interest_technology", 0) or 0)
     numerical_skill = float(features.get("numerical_skill", 0) or 0)
     empathy = float(features.get("empathy", 0) or 0)
     communication = float(features.get("communication", 0) or 0)
+    teamwork_preference = float(features.get("teamwork_preference", 0) or 0)
+    autonomy_preference = float(features.get("autonomy_preference", 0) or 0)
 
     if interest_health >= 4 and practical_learning >= 4 and interest_technology <= 2:
         for slug in ["ingenieria-de-sistemas", "ingenieria-de-software", "ciberseguridad", "ciencia-de-datos"]:
@@ -86,12 +89,29 @@ def apply_domain_adjustments(features: dict[str, Any], combined: dict[str, float
         adjusted["enfermeria"] = adjusted.get("enfermeria", 0.0) + 0.12
         adjusted["educacion"] = adjusted.get("educacion", 0.0) + 0.08
 
+    if interest_health <= 2:
+        for slug in ["enfermeria", "fisioterapia", "biologia", "quimica-aplicada"]:
+            adjusted[slug] = adjusted.get(slug, 0.0) * 0.25
+
     if numerical_skill <= 2:
         for slug in ["ciencia-de-datos", "analitica-de-negocios", "finanzas", "ingenieria-de-sistemas"]:
             adjusted[slug] = adjusted.get(slug, 0.0) * 0.55
 
     if empathy <= 2 and communication <= 2:
         for slug in ["trabajo-social", "psicologia"]:
+            adjusted[slug] = adjusted.get(slug, 0.0) * 0.40
+
+    if practical_learning >= 4 and teamwork_preference >= 4 and interest_health <= 2:
+        adjusted["educacion"] = adjusted.get("educacion", 0.0) + 0.18
+        adjusted["administracion-de-empresas"] = adjusted.get("administracion-de-empresas", 0.0) + 0.08
+        adjusted["marketing-digital"] = adjusted.get("marketing-digital", 0.0) + 0.05
+
+    if autonomy_preference >= 4 and practical_learning >= 4 and interest_technology <= 2 and numerical_skill <= 2:
+        for slug in ["ingenieria-de-sistemas", "ingenieria-de-software", "ciencia-de-datos"]:
+            adjusted[slug] = adjusted.get(slug, 0.0) * 0.35
+
+    if interest_social <= 2 and empathy <= 2:
+        for slug in ["trabajo-social", "psicologia", "enfermeria"]:
             adjusted[slug] = adjusted.get(slug, 0.0) * 0.40
 
     return adjusted
